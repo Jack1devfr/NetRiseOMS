@@ -1,0 +1,28 @@
+{
+  "name": "netrise-oms-message-app",
+  "version": "1.0.0",
+  "description": "Full-stack real-time messaging application",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "cd client && npm run dev",
+    "install-all": "npm install && cd client && npm install",
+    "build": "cd client && npm install && npm run build",
+    "start": "node server/index.js"
+  },
+  "keywords": ["messaging", "chat", "real-time"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "concurrently": "^8.2.2"
+  }
+}
+
