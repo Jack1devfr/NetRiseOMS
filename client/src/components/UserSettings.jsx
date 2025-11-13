@@ -42,6 +42,12 @@ function UserSettings({ currentUser, onAccountDeleted, onLogout }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image size must be less than 2MB');
+      return;
+    }
+
     // Convert to base64
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -60,7 +66,10 @@ function UserSettings({ currentUser, onAccountDeleted, onLogout }) {
         if (response.ok) {
           const data = await response.json();
           setProfilePicture(data.profilePicture);
-          setShowProfileUpload(false);
+          alert('Profile picture updated!');
+        } else {
+          const errorData = await response.json();
+          alert(errorData.error || 'Failed to upload profile picture');
         }
       } catch (error) {
         console.error('Error uploading profile picture:', error);
