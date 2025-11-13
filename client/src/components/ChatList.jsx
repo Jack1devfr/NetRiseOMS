@@ -41,7 +41,8 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
         id: group.id,
         name: group.name,
         type: 'group',
-        members: group.members
+        members: group.members,
+        createdBy: group.createdBy
       })));
     });
 
