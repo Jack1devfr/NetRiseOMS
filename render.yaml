@@ -2,7 +2,7 @@ services:
   - type: web
     name: netrise-oms
     env: node
-    buildCommand: npm install && cd client && npm install && npm run build && cd .. && echo "Build completed, checking dist folder..." && ls -la client/dist/ || (echo "Build failed or dist folder missing" && exit 1)
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
