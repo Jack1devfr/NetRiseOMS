@@ -157,7 +157,7 @@
       }
 
       const loggedInUser = req.app.locals.sessions.get(sessionId);
-      const isAdmin = loggedInUser === 'Jack_dev';
+      const isAdmin = loggedInUser === 'Jack_dev' || loggedInUser === 'jack_dev';
       const isSelf = loggedInUser === targetUsername || loggedInUser === currentUsername;
 
       if (!isAdmin && !isSelf) {
