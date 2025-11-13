@@ -57,10 +57,10 @@ function AdminPanel({ currentUser, onClose }) {
     }
   };
 
-  const handleBan = async (username = null) => {
+  const handleBan = async (username = null, accountId = null) => {
     const targetUsername = username || banForm.username;
-    if (!targetUsername) {
-      alert('Please enter a username');
+    if (!targetUsername && !accountId) {
+      alert('Please enter a username or account ID');
       return;
     }
 
@@ -149,7 +149,7 @@ function AdminPanel({ currentUser, onClose }) {
           <div className="ban-form">
             <input
               type="text"
-              placeholder="Username"
+              placeholder="Username or Account ID"
               value={banForm.username}
               onChange={(e) => setBanForm({ ...banForm, username: e.target.value })}
               className="ban-input"

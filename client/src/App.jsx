@@ -55,6 +55,9 @@ function App() {
     setUser(userData);
     localStorage.setItem('sessionId', userData.sessionId);
     localStorage.setItem('username', userData.username);
+    if (userData.accountId) {
+      localStorage.setItem('accountId', userData.accountId);
+    }
     initSocket(userData.sessionId, userData.username);
   };
 
