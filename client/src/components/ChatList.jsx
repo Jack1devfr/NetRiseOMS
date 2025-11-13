@@ -291,9 +291,11 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
               <div
                 key={group.id}
                 className={`chat-item ${selectedChat === group.id ? 'active' : ''}`}
-                onClick={() => onSelectChat(group.id, 'group')}
               >
-                <div className="chat-item-content">
+                <div 
+                  className="chat-item-content"
+                  onClick={() => onSelectChat(group.id, 'group')}
+                >
                   <div className="chat-avatar group-avatar">
                     {group.name.charAt(0).toUpperCase()}
                   </div>
@@ -304,6 +306,18 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
                     </span>
                   </div>
                 </div>
+                {(group.createdBy === currentUser || currentUser === 'Jack_dev' || currentUser === 'jack_dev') && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteGroup(group.id);
+                    }}
+                    className="delete-group-btn"
+                    title="Delete group"
+                  >
+                    🗑️
+                  </button>
+                )}
               </div>
             ))}
           </div>
