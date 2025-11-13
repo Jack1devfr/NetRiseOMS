@@ -80,63 +80,77 @@ npm run client
 
 ## Deployment
 
-### Deploying to Railway (Recommended)
+### Deploying to Render (Recommended)
 
-Railway is a simple platform for deploying Node.js applications. Here's how to deploy:
+Render is a free platform for deploying Node.js applications. Here's how to deploy:
 
-#### Step 1: Push to GitLab/GitHub
+#### Step 1: Push to GitHub
 
-Make sure your code is pushed to GitLab or GitHub:
+Your code is already on GitHub at: `https://github.com/Jack1devfr/NetRiseOMS`
+
+If you need to push updates:
 ```bash
 git add .
-git commit -m "Ready for Railway deployment"
+git commit -m "Ready for Render deployment"
 git push origin main
 ```
 
-#### Step 2: Import to Railway
+#### Step 2: Create Render Account
 
-1. Go to [railway.app](https://railway.app)
-2. Sign up or log in (free tier available)
-3. Click **"New Project"**
-4. Select **"Deploy from GitHub repo"** or **"Deploy from GitLab repo"**
-5. Authorize Railway to access your repository
-6. Select your repository (`NetRiseOMS` or your repo name)
-7. Railway will automatically detect Node.js and start deploying
+1. Go to [render.com](https://render.com)
+2. Click **"Get Started for Free"**
+3. Sign up with GitHub (connects automatically)
 
-#### Step 3: Configure Environment Variables
+#### Step 3: Create Web Service
 
-After deployment starts, go to your project settings:
+1. Click **"New +"** → **"Web Service"**
+2. Click **"Connect account"** next to GitHub
+3. Authorize Render to access your repositories
+4. Select: **`Jack1devfr/NetRiseOMS`**
 
-1. Click on your service
-2. Go to **"Variables"** tab
-3. Add these environment variables:
-   - `NODE_ENV` = `production`
-   - `ALLOWED_ORIGINS` = `https://your-app-name.up.railway.app` (Railway will show your URL)
-   - `PORT` = Railway sets this automatically (usually `3000` or `$PORT`)
+#### Step 4: Configure Service
 
-#### Step 4: Get Your App URL
+**Settings:**
+- **Name:** `netrise-oms` (or any name)
+- **Environment:** `Node`
+- **Region:** Choose closest to you
+- **Branch:** `main`
 
-1. Railway will generate a URL like: `https://your-app-name.up.railway.app`
-2. Update the `ALLOWED_ORIGINS` variable with this URL
-3. Your app should be live!
+**Build & Deploy:**
+- **Build Command:** `npm run install-all && npm run build`
+- **Start Command:** `npm start`
 
-#### Step 5: Update Frontend API URL (if needed)
+#### Step 5: Add Environment Variables
 
-If your frontend can't connect, you may need to rebuild with the Railway URL:
+Click **"Advanced"** → **"Add Environment Variable"**:
 
-1. In Railway, go to **Settings** → **Variables**
-2. Add: `VITE_API_URL` = `https://your-app-name.up.railway.app`
-3. Redeploy (Railway will rebuild automatically)
+- `NODE_ENV` = `production`
 
-**Railway Auto-Detection:**
-- Railway automatically detects Node.js from `package.json`
-- Uses `npm start` command to run your app
-- Builds your React frontend automatically
-- Supports WebSockets out of the box
+**After Render gives you a URL (after first deploy), add:**
+- `ALLOWED_ORIGINS` = `https://your-app-name.onrender.com` (your Render URL)
+- `VITE_API_URL` = `https://your-app-name.onrender.com` (same URL)
+
+#### Step 6: Deploy
+
+1. Click **"Create Web Service"**
+2. Render will build and deploy automatically
+3. You'll get a URL like: `https://netrise-oms.onrender.com`
+4. Update environment variables with your actual URL
+
+**Render Features:**
+- ✅ Free tier available (750 hours/month)
+- ✅ Auto-deploys from GitHub
+- ✅ Supports WebSockets
+- ✅ Builds React frontend automatically
+- ⚠️ Free tier spins down after 15 min inactivity (wakes on first request)
+
+### Detailed Guide
+
+See `RENDER_DEPLOY.md` for complete step-by-step instructions with troubleshooting.
 
 ### Other Platforms
 
-See `DEPLOYMENT.md` for detailed deployment instructions for Render, Vercel, and other platforms.
+See `RAILWAY_DEPLOY.md` for Railway instructions (note: Railway free tier only allows databases).
 
 ## Project Structure
 
