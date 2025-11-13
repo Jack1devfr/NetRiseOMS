@@ -36,28 +36,47 @@ if (process.env.NODE_ENV === 'production') {
   const distPath2 = path.join(process.cwd(), 'client/dist');
   const distPath3 = path.join(process.cwd(), 'dist');
   
+  console.log('Looking for frontend build...');
+  console.log('Current working directory:', process.cwd());
+  console.log('__dirname:', __dirname);
+  console.log('Checking paths:');
+  console.log('  Path 1:', distPath1, 'exists:', fs.existsSync(distPath1));
+  console.log('  Path 2:', distPath2, 'exists:', fs.existsSync(distPath2));
+  console.log('  Path 3:', distPath3, 'exists:', fs.existsSync(distPath3));
+  
   // Find which path exists
-  let staticPath = distPath1;
+  let staticPath = null;
   if (fs.existsSync(distPath1)) {
     staticPath = distPath1;
+    console.log('Using path 1:', staticPath);
   } else if (fs.existsSync(distPath2)) {
     staticPath = distPath2;
+    console.log('Using path 2:', staticPath);
   } else if (fs.existsSync(distPath3)) {
     staticPath = distPath3;
+    console.log('Using path 3:', staticPath);
   }
   
-  app.use(express.static(staticPath));
-  
-  app.get('*', (req, res) => {
-    const indexPath = path.join(staticPath, 'index.html');
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      console.error('Frontend not found at:', indexPath);
-      console.error('Tried paths:', distPath1, distPath2, distPath3);
-      res.status(500).send('Frontend build not found. Please ensure build completed successfully.');
-    }
-  });
+  if (staticPath && fs.existsSync(staticPath)) {
+    app.use(express.static(staticPath));
+    console.log('Static files serving from:', staticPath);
+    
+    app.get('*', (req, res) => {
+      const indexPath = path.join(staticPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        console.error('index.html not found at:', indexPath);
+        res.status(500).send('Frontend index.html not found.');
+      }
+    });
+  } else {
+    console.error('Frontend build directory not found!');
+    console.error('Tried paths:', distPath1, distPath2, distPath3);
+    app.get('*', (req, res) => {
+      res.status(500).send('Frontend build not found. Please ensure build completed successfully. Check build logs.');
+    });
+  }
 }
 
 // Routes
