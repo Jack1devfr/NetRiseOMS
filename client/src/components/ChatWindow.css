@@ -31,6 +31,10 @@
   text-transform: capitalize;
 }
 
+.chat-type-badge.global {
+  background: #4caf50;
+}
+
 .messages-container {
   flex: 1;
   overflow-y: auto;

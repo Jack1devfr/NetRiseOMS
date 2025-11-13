@@ -5,9 +5,8 @@ import './UserSettings.css';
 function UserSettings({ currentUser, onAccountDeleted, onLogout }) {
   const [profilePicture, setProfilePicture] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showProfileUpload, setShowProfileUpload] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
-  const isAdmin = currentUser === 'Jack_dev';
+  const [accountId, setAccountId] = useState(null);
+  const isAdmin = currentUser === 'Jack_dev' || currentUser === 'jack_dev';
 
   useEffect(() => {
     loadProfile();
@@ -27,6 +26,7 @@ function UserSettings({ currentUser, onAccountDeleted, onLogout }) {
       if (response.ok) {
         const data = await response.json();
         setProfilePicture(data.profilePicture);
+        setAccountId(data.accountId);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -107,25 +107,27 @@ function UserSettings({ currentUser, onAccountDeleted, onLogout }) {
       <div className="settings-section">
         <h3>Profile Picture</h3>
         <div className="profile-picture-section">
-          {profilePicture ? (
-            <img src={profilePicture} alt="Profile" className="profile-preview" />
-          ) : (
-            <div className="profile-placeholder">
-              {currentUser.charAt(0).toUpperCase()}
+          <label htmlFor="profile-picture-input" className="profile-picture-label">
+            {profilePicture ? (
+              <img src={profilePicture} alt="Profile" className="profile-preview" />
+            ) : (
+              <div className="profile-placeholder">
+                {currentUser.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="profile-overlay">
+              <span>Click to upload</span>
             </div>
-          )}
-          <button onClick={() => setShowProfileUpload(!showProfileUpload)} className="upload-btn">
-            {profilePicture ? 'Change Picture' : 'Upload Picture'}
-          </button>
-          {showProfileUpload && (
-            <div className="upload-section">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleProfilePictureUpload}
-                className="file-input"
-              />
-            </div>
+          </label>
+          <input
+            id="profile-picture-input"
+            type="file"
+            accept="image/*"
+            onChange={handleProfilePictureUpload}
+            className="file-input-hidden"
+          />
+          {accountId && (
+            <p className="account-id">Account ID: <strong>{accountId}</strong></p>
           )}
         </div>
       </div>

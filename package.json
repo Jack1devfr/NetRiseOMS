@@ -1,7 +1,7 @@
 {
-  "name": "netrise-oms-message-app",
+  "name": "project-vortex",
   "version": "1.0.0",
-  "description": "Full-stack real-time messaging application",
+  "description": "Project Vortex - Full-stack real-time messaging application",
   "main": "server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",

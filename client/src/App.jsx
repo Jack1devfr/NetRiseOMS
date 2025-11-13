@@ -100,7 +100,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="app-header">
-        <h1>Message App</h1>
+        <h1>Project Vortex</h1>
         <div className="user-info">
           <span className="username">{user.username}</span>
           {isAdmin && (

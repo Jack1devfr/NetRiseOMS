@@ -18,9 +18,12 @@
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Generate account ID (6-digit number)
+      const accountId = Math.floor(100000 + Math.random() * 900000).toString();
 
       req.app.locals.users.set(username, {
         id: userId,
+        accountId: accountId,
         password: hashedPassword,
         username: username,
         profilePicture: null,
@@ -62,7 +65,8 @@
       res.json({
         message: 'Login successful',
         sessionId,
-        username
+        username,
+        accountId: user.accountId
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -144,6 +148,7 @@
 
       res.json({
         username: user.username,
+        accountId: user.accountId,
         profilePicture: user.profilePicture,
         bannedUntil: isAdmin || isOwnProfile ? user.bannedUntil : null,
         deviceBanned: isAdmin ? user.deviceBanned : false,
@@ -199,11 +204,11 @@
     }
   });
 
-  // Ban user (admin only)
+  // Ban user (admin only) - can use username or accountId
   router.post('/ban', (req, res) => {
     try {
       const sessionId = req.headers.authorization?.replace('Bearer ', '');
-      const { targetUsername, banDuration, deviceBan } = req.body; // banDuration in hours, null for permanent
+      const { targetUsername, targetAccountId, banDuration, deviceBan } = req.body; // banDuration in hours, null for permanent
 
       if (!sessionId || !req.app.locals.sessions.has(sessionId)) {
         return res.status(401).json({ error: 'Not authenticated' });
@@ -237,10 +242,10 @@
         user.deviceBanned = true;
       }
 
-      req.app.locals.users.set(targetUsername, user);
+      req.app.locals.users.set(targetUser, user);
 
       // Disconnect user if online
-      req.app.locals.onlineUsers?.delete(targetUsername);
+      req.app.locals.onlineUsers?.delete(targetUser);
 
       res.json({ message: 'User banned successfully', bannedUntil: user.bannedUntil });
     } catch (error) {
@@ -249,11 +254,11 @@
     }
   });
 
-  // Unban user (admin only)
+  // Unban user (admin only) - can use username or accountId
   router.post('/unban', (req, res) => {
     try {
       const sessionId = req.headers.authorization?.replace('Bearer ', '');
-      const { targetUsername } = req.body;
+      const { targetUsername, targetAccountId } = req.body;
 
       if (!sessionId || !req.app.locals.sessions.has(sessionId)) {
         return res.status(401).json({ error: 'Not authenticated' });
@@ -266,15 +271,30 @@
         return res.status(403).json({ error: 'Admin access required' });
       }
 
-      const user = req.app.locals.users.get(targetUsername);
-      if (!user) {
+      // Find user by username or accountId
+      let user = null;
+      let targetUser = null;
+      if (targetAccountId) {
+        for (const [uname, u] of req.app.locals.users.entries()) {
+          if (u.accountId === targetAccountId) {
+            user = u;
+            targetUser = uname;
+            break;
+          }
+        }
+      } else if (targetUsername) {
+        user = req.app.locals.users.get(targetUsername);
+        targetUser = targetUsername;
+      }
+
+      if (!user || !targetUser) {
         return res.status(404).json({ error: 'User not found' });
       }
 
       user.bannedUntil = null;
       user.deviceBanned = false;
 
-      req.app.locals.users.set(targetUsername, user);
+      req.app.locals.users.set(targetUser, user);
 
       res.json({ message: 'User unbanned successfully' });
     } catch (error) {
@@ -301,6 +321,7 @@
 
       const allUsers = Array.from(req.app.locals.users.entries()).map(([username, user]) => ({
         username: user.username,
+        accountId: user.accountId,
         profilePicture: user.profilePicture,
         bannedUntil: user.bannedUntil,
         deviceBanned: user.deviceBanned,

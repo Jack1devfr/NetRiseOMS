@@ -34,6 +34,21 @@
   color: #333;
 }
 
+.account-id-display {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.account-id-display strong {
+  color: #667eea;
+  font-size: 16px;
+}
+
 .close-btn {
   background: none;
   border: none;

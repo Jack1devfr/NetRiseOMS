@@ -226,6 +226,39 @@ io.on('connection', (socket) => {
     socket.emit('groupCreated', group);
   });
 
+  // Global chat ID
+  const GLOBAL_CHAT_ID = 'global_chat';
+
+  // Handle joining global chat
+  socket.on('joinGlobalChat', () => {
+    socket.join(GLOBAL_CHAT_ID);
+    // Send global chat history
+    const globalMessages = messages.get(GLOBAL_CHAT_ID) || [];
+    socket.emit('globalChatHistory', { messages: globalMessages });
+  });
+
+  // Handle sending message to global chat
+  socket.on('sendGlobalMessage', ({ message }) => {
+    if (!socket.username) return;
+
+    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const messageData = {
+      id: messageId,
+      sender: socket.username,
+      message: message,
+      timestamp: new Date().toISOString()
+    };
+
+    // Store message in global chat
+    if (!messages.has(GLOBAL_CHAT_ID)) {
+      messages.set(GLOBAL_CHAT_ID, []);
+    }
+    messages.get(GLOBAL_CHAT_ID).push(messageData);
+
+    // Emit to all users in global chat
+    io.to(GLOBAL_CHAT_ID).emit('receiveGlobalMessage', messageData);
+  });
+
   // Handle requesting chat history
   socket.on('getChatHistory', ({ chatId }) => {
     const chatMessages = messages.get(chatId) || [];

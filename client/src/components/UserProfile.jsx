@@ -98,6 +98,12 @@ function UserProfile({ username, currentUser, onClose }) {
           <button onClick={onClose} className="close-btn">×</button>
         </div>
 
+        {profile.accountId && (
+          <div className="account-id-display">
+            Account ID: <strong>{profile.accountId}</strong>
+          </div>
+        )}
+
         <div className="profile-picture-section">
           {profile.profilePicture ? (
             <img src={profile.profilePicture} alt="Profile" className="profile-large" />

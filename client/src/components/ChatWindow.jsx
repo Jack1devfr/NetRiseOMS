@@ -11,43 +11,66 @@ function ChatWindow({ chatId, chatType, currentUser }) {
   useEffect(() => {
     if (!socket || !chatId) return;
 
-    // Join the chat room
-    socket.emit('joinChat', { chatId, chatType });
+    // Handle global chat differently
+    if (chatType === 'global') {
+      socket.emit('joinGlobalChat');
 
-    // Request chat history
-    socket.emit('getChatHistory', { chatId });
-
-    // Listen for chat history
-    const handleChatHistory = (data) => {
-      if (data.chatId === chatId) {
+      // Listen for global chat history
+      const handleGlobalChatHistory = (data) => {
         setMessages(data.messages || []);
-      }
-    };
+      };
 
-    // Listen for new messages
-    const handleReceiveMessage = (messageData) => {
-      if (messageData.chatId === chatId) {
+      // Listen for new global messages
+      const handleReceiveGlobalMessage = (messageData) => {
         setMessages(prev => [...prev, messageData]);
-      }
-    };
+      };
 
-    // Listen for deleted messages
-    const handleMessageDeleted = (data) => {
-      if (data.chatId === chatId) {
-        setMessages(prev => prev.filter(msg => msg.id !== data.messageId));
-      }
-    };
+      socket.on('globalChatHistory', handleGlobalChatHistory);
+      socket.on('receiveGlobalMessage', handleReceiveGlobalMessage);
 
-    socket.on('chatHistory', handleChatHistory);
-    socket.on('receiveMessage', handleReceiveMessage);
-    socket.on('messageDeleted', handleMessageDeleted);
+      return () => {
+        socket.off('globalChatHistory', handleGlobalChatHistory);
+        socket.off('receiveGlobalMessage', handleReceiveGlobalMessage);
+      };
+    } else {
+      // Join the chat room
+      socket.emit('joinChat', { chatId, chatType });
 
-    return () => {
-      socket.emit('leaveChat', { chatId });
-      socket.off('chatHistory', handleChatHistory);
-      socket.off('receiveMessage', handleReceiveMessage);
-      socket.off('messageDeleted', handleMessageDeleted);
-    };
+      // Request chat history
+      socket.emit('getChatHistory', { chatId });
+
+      // Listen for chat history
+      const handleChatHistory = (data) => {
+        if (data.chatId === chatId) {
+          setMessages(data.messages || []);
+        }
+      };
+
+      // Listen for new messages
+      const handleReceiveMessage = (messageData) => {
+        if (messageData.chatId === chatId) {
+          setMessages(prev => [...prev, messageData]);
+        }
+      };
+
+      // Listen for deleted messages
+      const handleMessageDeleted = (data) => {
+        if (data.chatId === chatId) {
+          setMessages(prev => prev.filter(msg => msg.id !== data.messageId));
+        }
+      };
+
+      socket.on('chatHistory', handleChatHistory);
+      socket.on('receiveMessage', handleReceiveMessage);
+      socket.on('messageDeleted', handleMessageDeleted);
+
+      return () => {
+        socket.emit('leaveChat', { chatId });
+        socket.off('chatHistory', handleChatHistory);
+        socket.off('receiveMessage', handleReceiveMessage);
+        socket.off('messageDeleted', handleMessageDeleted);
+      };
+    }
   }, [chatId, chatType, socket]);
 
   useEffect(() => {
@@ -58,11 +81,17 @@ function ChatWindow({ chatId, chatType, currentUser }) {
   const handleSendMessage = (message) => {
     if (!socket || !message.trim()) return;
 
-    socket.emit('sendMessage', {
-      chatId,
-      chatType,
-      message: message.trim()
-    });
+    if (chatType === 'global') {
+      socket.emit('sendGlobalMessage', {
+        message: message.trim()
+      });
+    } else {
+      socket.emit('sendMessage', {
+        chatId,
+        chatType,
+        message: message.trim()
+      });
+    }
   };
 
   const handleDeleteMessage = (messageId) => {
@@ -71,6 +100,9 @@ function ChatWindow({ chatId, chatType, currentUser }) {
   };
 
   const getChatTitle = () => {
+    if (chatType === 'global') {
+      return 'Global Chat';
+    }
     // Extract the other user's name from private chat ID
     if (chatType === 'private') {
       const parts = chatId.split('_');
@@ -84,7 +116,9 @@ function ChatWindow({ chatId, chatType, currentUser }) {
     <div className="chat-window">
       <div className="chat-header">
         <h3>{getChatTitle()}</h3>
-        <span className="chat-type-badge">{chatType}</span>
+        <span className={`chat-type-badge ${chatType === 'global' ? 'global' : ''}`}>
+          {chatType === 'global' ? '🌍 Global' : chatType}
+        </span>
       </div>
 
       <div className="messages-container">

@@ -173,6 +173,13 @@
   font-weight: 500;
 }
 
+.account-id-tag {
+  font-size: 11px;
+  color: #667eea;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
 .user-actions {
   display: flex;
   gap: 8px;

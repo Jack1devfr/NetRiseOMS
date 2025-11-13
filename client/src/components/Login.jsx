@@ -65,7 +65,7 @@ function Login({ onLogin }) {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1>Message App</h1>
+        <h1>Project Vortex</h1>
         <p className="subtitle">
           {isRegister ? 'Create an account' : 'Welcome back!'}
         </p>

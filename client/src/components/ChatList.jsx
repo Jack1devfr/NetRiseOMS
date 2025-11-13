@@ -165,6 +165,23 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
 
       <div className="chat-sections">
         <div className="chat-section">
+          <h3>Global Chat</h3>
+          <div className="chat-items">
+            <div
+              className={`chat-item ${selectedChat === 'global_chat' ? 'active' : ''}`}
+              onClick={() => onSelectChat('global_chat', 'global')}
+            >
+              <div className="chat-item-content">
+                <div className="chat-avatar group-avatar">🌍</div>
+                <div className="chat-info">
+                  <span className="chat-name">Global Chat</span>
+                  <span className="chat-type">Everyone</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="chat-section">
           <h3>Private Chats</h3>
           <div className="chat-items">
             {privateChats.map(chat => (

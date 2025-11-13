@@ -78,6 +78,7 @@ function AdminPanel({ currentUser, onClose }) {
         },
         body: JSON.stringify({
           targetUsername: targetUsername,
+          targetAccountId: accountId,
           banDuration: banHours,
           deviceBan: useDeviceBan
         })
@@ -97,7 +98,7 @@ function AdminPanel({ currentUser, onClose }) {
     }
   };
 
-  const handleUnban = async (username) => {
+  const handleUnban = async (username, accountId = null) => {
     try {
       const sessionId = localStorage.getItem('sessionId');
       const response = await fetch(getApiUrl('/api/auth/unban'), {
@@ -106,11 +107,14 @@ function AdminPanel({ currentUser, onClose }) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionId}`
         },
-        body: JSON.stringify({ targetUsername: username })
+        body: JSON.stringify({ 
+          targetUsername: username,
+          targetAccountId: accountId
+        })
       });
 
       if (response.ok) {
-        alert('User unbanned successfully');
+        alert(`User ${username} unbanned successfully`);
         loadUsers();
       } else {
         const data = await response.json();
@@ -186,6 +190,9 @@ function AdminPanel({ currentUser, onClose }) {
                     )}
                     <div>
                       <strong>{user.username}</strong>
+                      {user.accountId && (
+                        <span className="account-id-tag">ID: {user.accountId}</span>
+                      )}
                       {isBanned && (
                         <span className="banned-tag">
                           {user.deviceBanned ? 'Device Banned' : `Banned until ${new Date(user.bannedUntil).toLocaleString()}`}
@@ -198,14 +205,22 @@ function AdminPanel({ currentUser, onClose }) {
                   </div>
                   <div className="user-actions">
                     {isBanned ? (
-                      <button onClick={() => handleUnban(user.username)} className="unban-btn">
-                        Unban
+                      <button 
+                        onClick={() => {
+                          if (confirm(`Lift ban for ${user.username}?`)) {
+                            handleUnban(user.username, user.accountId);
+                          }
+                        }} 
+                        className="unban-btn"
+                        title="Lift ban"
+                      >
+                        Lift Ban
                       </button>
                     ) : (
                       <button 
                         onClick={() => {
-                          if (confirm(`Ban ${user.username} permanently?`)) {
-                            handleBan(user.username);
+                          if (confirm(`Ban ${user.username} (ID: ${user.accountId}) permanently?`)) {
+                            handleBan(user.username, user.accountId);
                           }
                         }} 
                         className="ban-btn-small"
@@ -213,7 +228,14 @@ function AdminPanel({ currentUser, onClose }) {
                         Ban
                       </button>
                     )}
-                    <button onClick={() => handleDeleteAccount(user.username)} className="delete-btn-small">
+                    <button 
+                      onClick={() => {
+                        if (confirm(`Delete account ${user.username}? This cannot be undone.`)) {
+                          handleDeleteAccount(user.username);
+                        }
+                      }} 
+                      className="delete-btn-small"
+                    >
                       Delete
                     </button>
                   </div>
