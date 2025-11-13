@@ -30,10 +30,33 @@ app.use(express.json());
 
 // Serve static files from React app in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
+  const fs = require('fs');
+  // Try multiple possible paths for the built frontend
+  const distPath1 = path.join(__dirname, '../client/dist');
+  const distPath2 = path.join(process.cwd(), 'client/dist');
+  const distPath3 = path.join(process.cwd(), 'dist');
+  
+  // Find which path exists
+  let staticPath = distPath1;
+  if (fs.existsSync(distPath1)) {
+    staticPath = distPath1;
+  } else if (fs.existsSync(distPath2)) {
+    staticPath = distPath2;
+  } else if (fs.existsSync(distPath3)) {
+    staticPath = distPath3;
+  }
+  
+  app.use(express.static(staticPath));
   
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    const indexPath = path.join(staticPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.error('Frontend not found at:', indexPath);
+      console.error('Tried paths:', distPath1, distPath2, distPath3);
+      res.status(500).send('Frontend build not found. Please ensure build completed successfully.');
+    }
   });
 }
 
