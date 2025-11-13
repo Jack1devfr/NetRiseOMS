@@ -197,7 +197,14 @@ function AdminPanel({ currentUser, onClose }) {
                         Unban
                       </button>
                     ) : (
-                      <button onClick={() => handleBan(user.username)} className="ban-btn-small">
+                      <button 
+                        onClick={() => {
+                          if (confirm(`Ban ${user.username} permanently?`)) {
+                            handleBan(user.username);
+                          }
+                        }} 
+                        className="ban-btn-small"
+                      >
                         Ban
                       </button>
                     )}
