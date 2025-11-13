@@ -227,8 +227,10 @@
         banUntil.setHours(banUntil.getHours() + banDuration);
         user.bannedUntil = banUntil.toISOString();
       } else {
-        // Permanent ban
-        user.bannedUntil = null; // null means permanently banned
+        // Permanent ban - set to far future date
+        const permanentBan = new Date();
+        permanentBan.setFullYear(permanentBan.getFullYear() + 100);
+        user.bannedUntil = permanentBan.toISOString();
       }
 
       if (deviceBan) {

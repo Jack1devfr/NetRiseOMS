@@ -128,17 +128,22 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
             className="group-name-input"
           />
           <div className="user-selection">
-            <p>Select members:</p>
-            {availableUsers.map(username => (
-              <label key={username} className="user-checkbox">
-                <input
-                  type="checkbox"
-                  checked={selectedUsers.includes(username)}
-                  onChange={() => toggleUserSelection(username)}
-                />
-                <span>{username}</span>
-              </label>
-            ))}
+            <p>Select members (you can select multiple):</p>
+            <div className="users-checkbox-list">
+              {availableUsers.map(username => (
+                <label key={username} className="user-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.includes(username)}
+                    onChange={() => toggleUserSelection(username)}
+                  />
+                  <span>{username}</span>
+                </label>
+              ))}
+            </div>
+            {selectedUsers.length > 0 && (
+              <p className="selected-count">Selected: {selectedUsers.length} member(s)</p>
+            )}
           </div>
           <div className="create-group-actions">
             <button onClick={handleCreateGroup} className="create-btn">
