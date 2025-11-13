@@ -47,15 +47,24 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
 
     // Listen for new group created
     socket.on('groupCreated', (group) => {
-      setGroups(prev => [...prev, {
+      const newGroup = {
         id: group.id,
         name: group.name,
         type: 'group',
-        members: group.members
-      }]);
+        members: group.members,
+        createdBy: group.createdBy
+      };
+      setGroups(prev => {
+        // Check if group already exists
+        if (prev.find(g => g.id === group.id)) {
+          return prev;
+        }
+        return [...prev, newGroup];
+      });
       setShowCreateGroup(false);
       setNewGroupName('');
       setSelectedUsers([]);
+      alert(`Group "${group.name}" created successfully!`);
     });
 
     // Listen for online users
