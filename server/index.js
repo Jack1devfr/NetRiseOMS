@@ -32,9 +32,12 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'production') {
   const fs = require('fs');
   // Try multiple possible paths for the built frontend
+  // Render uses /opt/render/project/src/ as base, so paths are relative to that
   const distPath1 = path.join(__dirname, '../client/dist');
   const distPath2 = path.join(process.cwd(), 'client/dist');
   const distPath3 = path.join(process.cwd(), 'dist');
+  const distPath4 = path.join(process.cwd(), 'src/client/dist'); // Render's structure
+  const distPath5 = '/opt/render/project/src/client/dist'; // Render absolute path
   
   console.log('Looking for frontend build...');
   console.log('Current working directory:', process.cwd());
@@ -43,18 +46,18 @@ if (process.env.NODE_ENV === 'production') {
   console.log('  Path 1:', distPath1, 'exists:', fs.existsSync(distPath1));
   console.log('  Path 2:', distPath2, 'exists:', fs.existsSync(distPath2));
   console.log('  Path 3:', distPath3, 'exists:', fs.existsSync(distPath3));
+  console.log('  Path 4:', distPath4, 'exists:', fs.existsSync(distPath4));
+  console.log('  Path 5:', distPath5, 'exists:', fs.existsSync(distPath5));
   
   // Find which path exists
   let staticPath = null;
-  if (fs.existsSync(distPath1)) {
-    staticPath = distPath1;
-    console.log('Using path 1:', staticPath);
-  } else if (fs.existsSync(distPath2)) {
-    staticPath = distPath2;
-    console.log('Using path 2:', staticPath);
-  } else if (fs.existsSync(distPath3)) {
-    staticPath = distPath3;
-    console.log('Using path 3:', staticPath);
+  const paths = [distPath1, distPath2, distPath3, distPath4, distPath5];
+  for (let i = 0; i < paths.length; i++) {
+    if (fs.existsSync(paths[i])) {
+      staticPath = paths[i];
+      console.log(`Using path ${i + 1}:`, staticPath);
+      break;
+    }
   }
   
   if (staticPath && fs.existsSync(staticPath)) {
@@ -72,7 +75,7 @@ if (process.env.NODE_ENV === 'production') {
     });
   } else {
     console.error('Frontend build directory not found!');
-    console.error('Tried paths:', distPath1, distPath2, distPath3);
+    console.error('Tried paths:', paths);
     app.get('*', (req, res) => {
       res.status(500).send('Frontend build not found. Please ensure build completed successfully. Check build logs.');
     });
