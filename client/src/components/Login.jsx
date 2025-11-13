@@ -47,12 +47,14 @@ function Login({ onLogin }) {
 
         onLogin({
           username: loginData.username,
-          sessionId: loginData.sessionId
+          sessionId: loginData.sessionId,
+          accountId: loginData.accountId
         });
       } else {
         onLogin({
           username: data.username,
-          sessionId: data.sessionId
+          sessionId: data.sessionId,
+          accountId: data.accountId
         });
       }
     } catch (err) {
