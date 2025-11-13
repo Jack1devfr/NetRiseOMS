@@ -207,12 +207,25 @@ io.on('connection', (socket) => {
 
   // Handle creating a group
   socket.on('createGroup', ({ groupName, members }) => {
-    if (!socket.username) return;
+    if (!socket.username) {
+      socket.emit('error', { message: 'Not authenticated' });
+      return;
+    }
+
+    if (!groupName || !groupName.trim()) {
+      socket.emit('error', { message: 'Group name is required' });
+      return;
+    }
+
+    if (!members || members.length === 0) {
+      socket.emit('error', { message: 'At least one member is required' });
+      return;
+    }
 
     const groupId = `group_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const group = {
       id: groupId,
-      name: groupName,
+      name: groupName.trim(),
       members: [socket.username, ...members],
       createdBy: socket.username
     };
@@ -224,6 +237,42 @@ io.on('connection', (socket) => {
     });
 
     socket.emit('groupCreated', group);
+  });
+
+  // Handle deleting a group
+  socket.on('deleteGroup', ({ groupId }) => {
+    if (!socket.username) {
+      socket.emit('error', { message: 'Not authenticated' });
+      return;
+    }
+
+    const group = groups.get(groupId);
+    if (!group) {
+      socket.emit('error', { message: 'Group not found' });
+      return;
+    }
+
+    // Only creator or admin can delete
+    const isCreator = group.createdBy === socket.username;
+    const isAdmin = socket.username === 'Jack_dev' || socket.username === 'jack_dev';
+
+    if (!isCreator && !isAdmin) {
+      socket.emit('error', { message: 'Not authorized to delete this group' });
+      return;
+    }
+
+    // Delete group
+    groups.delete(groupId);
+    
+    // Delete group messages
+    messages.delete(groupId);
+
+    // Notify all members
+    group.members.forEach(member => {
+      io.to(`user:${member}`).emit('groupDeleted', { groupId });
+    });
+
+    socket.emit('groupDeleted', { groupId });
   });
 
   // Global chat ID

@@ -253,6 +253,25 @@
   background: rgba(0, 0, 0, 0.1);
 }
 
+.delete-group-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.chat-item:hover .delete-group-btn {
+  opacity: 1;
+}
+
+.delete-group-btn:hover {
+  background: rgba(255, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
   .chat-list {
     width: 100%;

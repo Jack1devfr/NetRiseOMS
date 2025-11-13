@@ -83,12 +83,30 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
 
   const handleCreateGroup = () => {
     const socket = getSocket();
-    if (!socket || !newGroupName.trim() || selectedUsers.length === 0) return;
+    if (!socket) {
+      alert('Not connected to server');
+      return;
+    }
+    
+    if (!newGroupName.trim()) {
+      alert('Please enter a group name');
+      return;
+    }
+    
+    if (selectedUsers.length === 0) {
+      alert('Please select at least one member');
+      return;
+    }
 
     socket.emit('createGroup', {
       groupName: newGroupName.trim(),
       members: selectedUsers
     });
+    
+    // Reset form after creating
+    setNewGroupName('');
+    setSelectedUsers([]);
+    setShowCreateGroup(false);
   };
 
   const toggleUserSelection = (username) => {
@@ -98,6 +116,42 @@ function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
         : [...prev, username]
     );
   };
+
+  const handleDeleteGroup = (groupId) => {
+    if (!confirm('Are you sure you want to delete this group? This cannot be undone.')) {
+      return;
+    }
+
+    const socket = getSocket();
+    if (!socket) {
+      alert('Not connected to server');
+      return;
+    }
+
+    socket.emit('deleteGroup', { groupId });
+  };
+
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleGroupDeleted = ({ groupId }) => {
+      setGroups(prev => prev.filter(g => g.id !== groupId));
+      alert('Group deleted successfully');
+    };
+
+    const handleError = ({ message }) => {
+      alert(message || 'An error occurred');
+    };
+
+    socket.on('groupDeleted', handleGroupDeleted);
+    socket.on('error', handleError);
+
+    return () => {
+      socket.off('groupDeleted', handleGroupDeleted);
+      socket.off('error', handleError);
+    };
+  }, []);
 
   const getChatDisplayName = (chat) => {
     if (chat.type === 'group') {

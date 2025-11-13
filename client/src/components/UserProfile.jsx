@@ -17,14 +17,24 @@ function UserProfile({ username, currentUser, onClose }) {
   const loadProfile = async () => {
     try {
       const sessionId = localStorage.getItem('sessionId');
-      const response = await fetch(getApiUrl(`/api/auth/profile?username=${username}`), {
+      if (!sessionId) {
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(getApiUrl(`/api/auth/profile?username=${encodeURIComponent(username)}`), {
         headers: {
           'Authorization': `Bearer ${sessionId}`
         }
       });
+      
       if (response.ok) {
         const data = await response.json();
         setProfile(data);
+      } else {
+        const errorData = await response.json();
+        console.error('Error loading profile:', errorData);
+        // Don't set profile, will show "User not found" message
       }
     } catch (error) {
       console.error('Error loading profile:', error);
