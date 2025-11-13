@@ -57,11 +57,16 @@ function AdminPanel({ currentUser, onClose }) {
     }
   };
 
-  const handleBan = async () => {
-    if (!banForm.username) {
+  const handleBan = async (username = null) => {
+    const targetUsername = username || banForm.username;
+    if (!targetUsername) {
       alert('Please enter a username');
       return;
     }
+
+    // If clicking ban button from user list, use quick ban (no duration)
+    const banHours = username ? null : (banForm.hours ? parseInt(banForm.hours) : null);
+    const useDeviceBan = username ? false : banForm.deviceBan;
 
     try {
       const sessionId = localStorage.getItem('sessionId');
@@ -73,8 +78,8 @@ function AdminPanel({ currentUser, onClose }) {
         },
         body: JSON.stringify({
           targetUsername: targetUsername,
-          banDuration: banForm.hours ? parseInt(banForm.hours) : null,
-          deviceBan: banForm.deviceBan
+          banDuration: banHours,
+          deviceBan: useDeviceBan
         })
       });
 
