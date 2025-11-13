@@ -189,6 +189,7 @@ app.locals.groups = groups;
 app.locals.onlineUsers = onlineUsers;
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const HOST = '0.0.0.0'; // Required for Render - bind to all network interfaces
+server.listen(PORT, HOST, () => {
+  console.log(`Server running on ${HOST}:${PORT}`);
 });
