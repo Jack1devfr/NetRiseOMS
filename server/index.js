@@ -3,6 +3,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -29,7 +30,6 @@ app.use(express.json());
 
 // Serve static files from React app in production
 if (process.env.NODE_ENV === 'production') {
-  const path = require('path');
   app.use(express.static(path.join(__dirname, '../client/dist')));
   
   app.get('*', (req, res) => {
@@ -169,4 +169,3 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

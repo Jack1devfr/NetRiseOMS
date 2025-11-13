@@ -78,6 +78,66 @@ npm run client
    - Click "New Group" to create a group chat and add members
    - Send messages in real-time!
 
+## Deployment
+
+### Deploying to Railway (Recommended)
+
+Railway is a simple platform for deploying Node.js applications. Here's how to deploy:
+
+#### Step 1: Push to GitLab/GitHub
+
+Make sure your code is pushed to GitLab or GitHub:
+```bash
+git add .
+git commit -m "Ready for Railway deployment"
+git push origin main
+```
+
+#### Step 2: Import to Railway
+
+1. Go to [railway.app](https://railway.app)
+2. Sign up or log in (free tier available)
+3. Click **"New Project"**
+4. Select **"Deploy from GitHub repo"** or **"Deploy from GitLab repo"**
+5. Authorize Railway to access your repository
+6. Select your repository (`NetRiseOMS` or your repo name)
+7. Railway will automatically detect Node.js and start deploying
+
+#### Step 3: Configure Environment Variables
+
+After deployment starts, go to your project settings:
+
+1. Click on your service
+2. Go to **"Variables"** tab
+3. Add these environment variables:
+   - `NODE_ENV` = `production`
+   - `ALLOWED_ORIGINS` = `https://your-app-name.up.railway.app` (Railway will show your URL)
+   - `PORT` = Railway sets this automatically (usually `3000` or `$PORT`)
+
+#### Step 4: Get Your App URL
+
+1. Railway will generate a URL like: `https://your-app-name.up.railway.app`
+2. Update the `ALLOWED_ORIGINS` variable with this URL
+3. Your app should be live!
+
+#### Step 5: Update Frontend API URL (if needed)
+
+If your frontend can't connect, you may need to rebuild with the Railway URL:
+
+1. In Railway, go to **Settings** → **Variables**
+2. Add: `VITE_API_URL` = `https://your-app-name.up.railway.app`
+3. Redeploy (Railway will rebuild automatically)
+
+**Railway Auto-Detection:**
+- Railway automatically detects Node.js from `package.json`
+- Uses `npm start` command to run your app
+- Builds your React frontend automatically
+- Supports WebSockets out of the box
+
+### Other Platforms
+
+See `DEPLOYMENT.md` for detailed deployment instructions for Render, Vercel, and other platforms.
+
 ## Project Structure
 
 ```
@@ -95,7 +155,8 @@ npm run client
 │   │   │   ├── ChatWindow.jsx
 │   │   │   └── MessageInput.jsx
 │   │   └── utils/
-│   │       └── socket.js # Socket.io client setup
+│   │       ├── socket.js # Socket.io client setup
+│   │       └── api.js    # API configuration
 │   └── package.json
 ├── package.json
 └── README.md
