@@ -10,7 +10,7 @@
     "install-all": "npm install && cd client && npm install",
     "build": "cd client && npm install && npm run build",
     "build:check": "test -d client/dist && echo 'Build exists' || echo 'Build missing'",
-    "postinstall": "cd client && npm install && npm run build",
+    "postinstall": "cd client && npm install",
     "start": "node server/index.js"
   },
   "keywords": ["messaging", "chat", "real-time"],
