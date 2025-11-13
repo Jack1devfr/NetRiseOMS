@@ -9,9 +9,13 @@ const app = express();
 const server = http.createServer(app);
 
 // CORS configuration
+// In production, allow requests from the same origin (since frontend is served from same server)
+// In development, allow localhost
+const isProduction = process.env.NODE_ENV === 'production';
+const defaultOrigins = isProduction ? ['*'] : ['http://localhost:5173'];
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173'];
+  : defaultOrigins;
 
 const io = socketIo(server, {
   cors: {
