@@ -89,6 +89,9 @@
   border-radius: 18px;
   position: relative;
   word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .message.sent .message-bubble {
@@ -113,8 +116,35 @@
 .message-time {
   font-size: 11px;
   opacity: 0.7;
-  margin-top: 4px;
   display: block;
+}
+
+.delete-message-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.message:hover .delete-message-btn {
+  opacity: 1;
+}
+
+.delete-message-btn:hover {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 768px) {

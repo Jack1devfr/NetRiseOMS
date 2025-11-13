@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
+import UserSettings from './components/UserSettings';
 import { initSocket, disconnectSocket, getSocket } from './utils/socket';
 import { getApiUrl } from './utils/api';
 import './App.css';
@@ -10,6 +11,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [selectedChat, setSelectedChat] = useState(null);
   const [chatType, setChatType] = useState(null); // 'private' or 'group'
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     // Check for existing session
@@ -65,6 +67,18 @@ function App() {
     setUser(null);
     setSelectedChat(null);
     setChatType(null);
+    setShowSettings(false);
+    localStorage.removeItem('sessionId');
+    localStorage.removeItem('username');
+  };
+
+  const handleAccountDeleted = () => {
+    // Account was deleted, clear everything
+    disconnectSocket();
+    setUser(null);
+    setSelectedChat(null);
+    setChatType(null);
+    setShowSettings(false);
     localStorage.removeItem('sessionId');
     localStorage.removeItem('username');
   };
@@ -84,9 +98,19 @@ function App() {
         <h1>Message App</h1>
         <div className="user-info">
           <span className="username">{user.username}</span>
+          <button onClick={() => setShowSettings(!showSettings)} className="settings-btn">
+            ⚙️ Settings
+          </button>
           <button onClick={handleLogout} className="logout-btn">Logout</button>
         </div>
       </div>
+      {showSettings && (
+        <UserSettings
+          currentUser={user.username}
+          onAccountDeleted={handleAccountDeleted}
+          onLogout={handleLogout}
+        />
+      )}
       <div className="app-content">
         <ChatList
           currentUser={user.username}

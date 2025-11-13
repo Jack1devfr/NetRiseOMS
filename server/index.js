@@ -90,9 +90,9 @@ if (process.env.NODE_ENV === 'production') {
 app.use('/api/auth', authRoutes);
 
 // In-memory storage
-const users = new Map(); // username -> { password, id }
+const users = new Map(); // username -> { password, id, profilePicture }
 const sessions = new Map(); // sessionId -> username
-const messages = new Map(); // chatId -> [{ sender, message, timestamp }]
+const messages = new Map(); // chatId -> [{ id, sender, message, timestamp }]
 const groups = new Map(); // groupId -> { name, members: [usernames] }
 const onlineUsers = new Set(); // Set of usernames
 
@@ -133,7 +133,9 @@ io.on('connection', (socket) => {
   socket.on('sendMessage', ({ chatId, chatType, message }) => {
     if (!socket.username) return;
 
+    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const messageData = {
+      id: messageId,
       sender: socket.username,
       message: message,
       timestamp: new Date().toISOString()
@@ -151,6 +153,28 @@ io.on('connection', (socket) => {
       chatType,
       ...messageData
     });
+  });
+
+  // Handle deleting a message
+  socket.on('deleteMessage', ({ chatId, messageId }) => {
+    if (!socket.username) return;
+
+    const chatMessages = messages.get(chatId);
+    if (!chatMessages) return;
+
+    const messageIndex = chatMessages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1) return;
+
+    const message = chatMessages[messageIndex];
+    // Only allow deleting own messages
+    if (message.sender !== socket.username) return;
+
+    // Remove message
+    chatMessages.splice(messageIndex, 1);
+    messages.set(chatId, chatMessages);
+
+    // Notify all users in chat
+    io.to(`chat:${chatId}`).emit('messageDeleted', { chatId, messageId });
   });
 
   // Handle creating a group
@@ -177,7 +201,12 @@ io.on('connection', (socket) => {
   // Handle requesting chat history
   socket.on('getChatHistory', ({ chatId }) => {
     const chatMessages = messages.get(chatId) || [];
-    socket.emit('chatHistory', { chatId, messages: chatMessages });
+    // Ensure all messages have IDs for deletion
+    const messagesWithIds = chatMessages.map(msg => ({
+      ...msg,
+      id: msg.id || `msg_${msg.timestamp}_${Math.random().toString(36).substr(2, 9)}`
+    }));
+    socket.emit('chatHistory', { chatId, messages: messagesWithIds });
   });
 
   // Handle requesting user's groups

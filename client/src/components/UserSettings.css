@@ -1,0 +1,139 @@
+.user-settings {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.settings-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+.settings-section h3 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
+}
+
+.profile-picture-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.profile-preview,
+.profile-placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #667eea;
+}
+
+.profile-placeholder {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.upload-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.upload-btn:hover {
+  background: #5568d3;
+}
+
+.upload-section {
+  margin-top: 10px;
+}
+
+.file-input {
+  padding: 8px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.delete-account-btn {
+  background: #f5576c;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.delete-account-btn:hover {
+  background: #e0455a;
+}
+
+.delete-confirm {
+  margin-top: 15px;
+  padding: 15px;
+  background: #fee;
+  border-radius: 6px;
+  border: 1px solid #fcc;
+}
+
+.delete-confirm p {
+  margin-bottom: 15px;
+  color: #c33;
+  font-size: 14px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-delete-btn {
+  background: #c33;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.confirm-delete-btn:hover {
+  background: #a22;
+}
+
+.cancel-btn {
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-btn:hover {
+  background: #d0d0d0;
+}
+

@@ -31,13 +31,22 @@ function ChatWindow({ chatId, chatType, currentUser }) {
       }
     };
 
+    // Listen for deleted messages
+    const handleMessageDeleted = (data) => {
+      if (data.chatId === chatId) {
+        setMessages(prev => prev.filter(msg => msg.id !== data.messageId));
+      }
+    };
+
     socket.on('chatHistory', handleChatHistory);
     socket.on('receiveMessage', handleReceiveMessage);
+    socket.on('messageDeleted', handleMessageDeleted);
 
     return () => {
       socket.emit('leaveChat', { chatId });
       socket.off('chatHistory', handleChatHistory);
       socket.off('receiveMessage', handleReceiveMessage);
+      socket.off('messageDeleted', handleMessageDeleted);
     };
   }, [chatId, chatType, socket]);
 
@@ -54,6 +63,11 @@ function ChatWindow({ chatId, chatType, currentUser }) {
       chatType,
       message: message.trim()
     });
+  };
+
+  const handleDeleteMessage = (messageId) => {
+    if (!socket) return;
+    socket.emit('deleteMessage', { chatId, messageId });
   };
 
   const getChatTitle = () => {
@@ -79,9 +93,9 @@ function ChatWindow({ chatId, chatType, currentUser }) {
             <p>No messages yet. Start the conversation!</p>
           </div>
         ) : (
-          messages.map((msg, index) => (
+          messages.map((msg) => (
             <div
-              key={index}
+              key={msg.id || msg.timestamp}
               className={`message ${msg.sender === currentUser ? 'sent' : 'received'}`}
             >
               {msg.sender !== currentUser && (
@@ -95,6 +109,15 @@ function ChatWindow({ chatId, chatType, currentUser }) {
                     minute: '2-digit'
                   })}
                 </span>
+                {msg.sender === currentUser && (
+                  <button
+                    onClick={() => handleDeleteMessage(msg.id)}
+                    className="delete-message-btn"
+                    title="Delete message"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             </div>
           ))
