@@ -3,6 +3,8 @@ import Login from './components/Login';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
 import UserSettings from './components/UserSettings';
+import UserProfile from './components/UserProfile';
+import AdminPanel from './components/AdminPanel';
 import { initSocket, disconnectSocket, getSocket } from './utils/socket';
 import { getApiUrl } from './utils/api';
 import './App.css';
@@ -12,6 +14,9 @@ function App() {
   const [selectedChat, setSelectedChat] = useState(null);
   const [chatType, setChatType] = useState(null); // 'private' or 'group'
   const [showSettings, setShowSettings] = useState(false);
+  const [viewingProfile, setViewingProfile] = useState(null);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const isAdmin = user?.username === 'Jack_dev' || user?.username === 'jack_dev';
 
   useEffect(() => {
     // Check for existing session
@@ -98,6 +103,11 @@ function App() {
         <h1>Message App</h1>
         <div className="user-info">
           <span className="username">{user.username}</span>
+          {isAdmin && (
+            <button onClick={() => setShowAdminPanel(!showAdminPanel)} className="admin-btn">
+              🛡️ Admin
+            </button>
+          )}
           <button onClick={() => setShowSettings(!showSettings)} className="settings-btn">
             ⚙️ Settings
           </button>
@@ -111,11 +121,25 @@ function App() {
           onLogout={handleLogout}
         />
       )}
+      {viewingProfile && (
+        <UserProfile
+          username={viewingProfile}
+          currentUser={user.username}
+          onClose={() => setViewingProfile(null)}
+        />
+      )}
+      {showAdminPanel && isAdmin && (
+        <AdminPanel
+          currentUser={user.username}
+          onClose={() => setShowAdminPanel(false)}
+        />
+      )}
       <div className="app-content">
         <ChatList
           currentUser={user.username}
           onSelectChat={handleSelectChat}
           selectedChat={selectedChat}
+          onViewProfile={setViewingProfile}
         />
         {selectedChat ? (
           <ChatWindow

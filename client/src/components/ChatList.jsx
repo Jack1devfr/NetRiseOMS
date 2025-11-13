@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getSocket } from '../utils/socket';
 import './ChatList.css';
 
-function ChatList({ currentUser, onSelectChat, selectedChat }) {
+function ChatList({ currentUser, onSelectChat, selectedChat, onViewProfile }) {
   const [privateChats, setPrivateChats] = useState([]);
   const [groups, setGroups] = useState([]);
   const [availableUsers, setAvailableUsers] = useState([]);
@@ -166,9 +166,11 @@ function ChatList({ currentUser, onSelectChat, selectedChat }) {
               <div
                 key={chat.id}
                 className={`chat-item ${selectedChat === chat.id ? 'active' : ''}`}
-                onClick={() => onSelectChat(chat.id, 'private')}
               >
-                <div className="chat-item-content">
+                <div 
+                  className="chat-item-content"
+                  onClick={() => onSelectChat(chat.id, 'private')}
+                >
                   <div className="chat-avatar">
                     {getChatDisplayName(chat).charAt(0).toUpperCase()}
                   </div>
@@ -182,6 +184,16 @@ function ChatList({ currentUser, onSelectChat, selectedChat }) {
                     <span className="chat-type">Private</span>
                   </div>
                 </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewProfile(chat.name);
+                  }}
+                  className="profile-view-btn"
+                  title="View profile"
+                >
+                  👤
+                </button>
               </div>
             ))}
           </div>

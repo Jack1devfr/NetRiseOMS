@@ -90,11 +90,12 @@ if (process.env.NODE_ENV === 'production') {
 app.use('/api/auth', authRoutes);
 
 // In-memory storage
-const users = new Map(); // username -> { password, id, profilePicture }
+const users = new Map(); // username -> { password, id, profilePicture, bannedUntil: null, deviceBanned: false, reports: [] }
 const sessions = new Map(); // sessionId -> username
 const messages = new Map(); // chatId -> [{ id, sender, message, timestamp }]
 const groups = new Map(); // groupId -> { name, members: [usernames] }
 const onlineUsers = new Set(); // Set of usernames
+const deviceBans = new Set(); // Set of device identifiers (IP or fingerprint)
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
@@ -103,6 +104,33 @@ io.on('connection', (socket) => {
   // Handle user login via socket
   socket.on('login', ({ username, sessionId }) => {
     if (sessions.has(sessionId) && sessions.get(sessionId) === username) {
+      const user = users.get(username);
+      
+      // Check if user is banned
+      if (user?.deviceBanned) {
+        socket.emit('banned', { reason: 'Device banned' });
+        socket.disconnect();
+        return;
+      }
+
+      if (user?.bannedUntil) {
+        const banDate = new Date(user.bannedUntil);
+        const now = new Date();
+        if (banDate > now) {
+          const hoursLeft = Math.ceil((banDate - now) / (1000 * 60 * 60));
+          socket.emit('banned', { 
+            reason: `Temporarily banned. Time remaining: ${hoursLeft} hour(s)`,
+            bannedUntil: user.bannedUntil
+          });
+          socket.disconnect();
+          return;
+        } else {
+          // Ban expired
+          user.bannedUntil = null;
+          users.set(username, user);
+        }
+      }
+
       socket.username = username;
       socket.join(`user:${username}`);
       onlineUsers.add(username);

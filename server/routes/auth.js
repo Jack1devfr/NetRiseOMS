@@ -23,7 +23,10 @@
         id: userId,
         password: hashedPassword,
         username: username,
-        profilePicture: null
+        profilePicture: null,
+        bannedUntil: null,
+        deviceBanned: false,
+        reports: []
       });
 
       res.status(201).json({ message: 'User registered successfully', username });
@@ -135,12 +138,176 @@
         return res.status(404).json({ error: 'User not found' });
       }
 
+      const loggedInUser = req.app.locals.sessions.get(sessionId);
+      const isAdmin = loggedInUser === 'Jack_dev' || loggedInUser === 'jack_dev';
+      const isOwnProfile = loggedInUser === targetUsername;
+
       res.json({
         username: user.username,
-        profilePicture: user.profilePicture
+        profilePicture: user.profilePicture,
+        bannedUntil: isAdmin || isOwnProfile ? user.bannedUntil : null,
+        deviceBanned: isAdmin ? user.deviceBanned : false,
+        reports: isAdmin ? user.reports : []
       });
     } catch (error) {
       console.error('Get profile error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Report user
+  router.post('/report', (req, res) => {
+    try {
+      const sessionId = req.headers.authorization?.replace('Bearer ', '');
+      const { reportedUsername, reason } = req.body;
+
+      if (!sessionId || !req.app.locals.sessions.has(sessionId)) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      const reporterUsername = req.app.locals.sessions.get(sessionId);
+
+      if (!reportedUsername || !reason) {
+        return res.status(400).json({ error: 'Reported username and reason are required' });
+      }
+
+      if (reporterUsername === reportedUsername) {
+        return res.status(400).json({ error: 'Cannot report yourself' });
+      }
+
+      const reportedUser = req.app.locals.users.get(reportedUsername);
+      if (!reportedUser) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Add report
+      if (!reportedUser.reports) {
+        reportedUser.reports = [];
+      }
+      reportedUser.reports.push({
+        reportedBy: reporterUsername,
+        reason: reason,
+        timestamp: new Date().toISOString()
+      });
+
+      req.app.locals.users.set(reportedUsername, reportedUser);
+
+      res.json({ message: 'User reported successfully' });
+    } catch (error) {
+      console.error('Report user error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Ban user (admin only)
+  router.post('/ban', (req, res) => {
+    try {
+      const sessionId = req.headers.authorization?.replace('Bearer ', '');
+      const { targetUsername, banDuration, deviceBan } = req.body; // banDuration in hours, null for permanent
+
+      if (!sessionId || !req.app.locals.sessions.has(sessionId)) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      const adminUsername = req.app.locals.sessions.get(sessionId);
+      const isAdmin = adminUsername === 'Jack_dev' || adminUsername === 'jack_dev';
+
+      if (!isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const user = req.app.locals.users.get(targetUsername);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      if (banDuration) {
+        // Temp ban
+        const banUntil = new Date();
+        banUntil.setHours(banUntil.getHours() + banDuration);
+        user.bannedUntil = banUntil.toISOString();
+      } else {
+        // Permanent ban
+        user.bannedUntil = null; // null means permanently banned
+      }
+
+      if (deviceBan) {
+        user.deviceBanned = true;
+      }
+
+      req.app.locals.users.set(targetUsername, user);
+
+      // Disconnect user if online
+      req.app.locals.onlineUsers?.delete(targetUsername);
+
+      res.json({ message: 'User banned successfully', bannedUntil: user.bannedUntil });
+    } catch (error) {
+      console.error('Ban user error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Unban user (admin only)
+  router.post('/unban', (req, res) => {
+    try {
+      const sessionId = req.headers.authorization?.replace('Bearer ', '');
+      const { targetUsername } = req.body;
+
+      if (!sessionId || !req.app.locals.sessions.has(sessionId)) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      const adminUsername = req.app.locals.sessions.get(sessionId);
+      const isAdmin = adminUsername === 'Jack_dev' || adminUsername === 'jack_dev';
+
+      if (!isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const user = req.app.locals.users.get(targetUsername);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      user.bannedUntil = null;
+      user.deviceBanned = false;
+
+      req.app.locals.users.set(targetUsername, user);
+
+      res.json({ message: 'User unbanned successfully' });
+    } catch (error) {
+      console.error('Unban user error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Get all users (admin only)
+  router.get('/users', (req, res) => {
+    try {
+      const sessionId = req.headers.authorization?.replace('Bearer ', '');
+
+      if (!sessionId || !req.app.locals.sessions.has(sessionId)) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      const adminUsername = req.app.locals.sessions.get(sessionId);
+      const isAdmin = adminUsername === 'Jack_dev' || adminUsername === 'jack_dev';
+
+      if (!isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const allUsers = Array.from(req.app.locals.users.entries()).map(([username, user]) => ({
+        username: user.username,
+        profilePicture: user.profilePicture,
+        bannedUntil: user.bannedUntil,
+        deviceBanned: user.deviceBanned,
+        reports: user.reports || []
+      }));
+
+      res.json({ users: allUsers });
+    } catch (error) {
+      console.error('Get users error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });

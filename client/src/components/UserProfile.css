@@ -1,0 +1,200 @@
+.user-profile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.user-profile {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: #f0f0f0;
+}
+
+.profile-picture-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.profile-large,
+.profile-large-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #667eea;
+}
+
+.profile-large-placeholder {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  font-weight: 600;
+}
+
+.banned-badge {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.reports-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.reports-section h3 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 16px;
+}
+
+.report-item {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.report-item p {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.report-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.profile-actions {
+  margin-top: 20px;
+}
+
+.report-btn {
+  background: #f5576c;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.report-btn:hover {
+  background: #e0455a;
+}
+
+.report-form {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.report-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.report-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.report-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.submit-report-btn {
+  flex: 1;
+  background: #f5576c;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.submit-report-btn:hover {
+  background: #e0455a;
+}
+
+.cancel-btn {
+  flex: 1;
+  background: #e0e0e0;
+  color: #333;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancel-btn:hover {
+  background: #d0d0d0;
+}
+
